@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFC 2.0 — Маркетплейс еды (ID System)</title>
+    <style>
+        :root {
+            --ozon-blue: #005bff;
+            --ozon-magenta: #f91155;
+            --ozon-magenta-hover: #d10e46;
+            --text-main: #2d2d2f;
+            --text-secondary: #808080;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --input-border: #e0e0e6;
+            --input-focus: #005bff;
+        }
+
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: linear-gradient(-45deg, #f2f5f9, #eef3ff, #fff0f5, #f0fff4);
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            color: var(--text-main);
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px;
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translate3d(0, -20px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 440px; 
+            backdrop-filter: blur(10px);
+            animation: fadeInDown 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--ozon-blue), var(--ozon-magenta));
+        }
+
+        h2 { 
+            color: var(--ozon-blue); 
+            text-align: center; 
+            font-size: 28px; 
+            margin-top: 10px;
+            margin-bottom: 25px; 
+            font-weight: 800; 
+        }
+        h3 { font-size: 20px; margin-bottom: 18px; font-weight: 700;}
+
+        label { font-size: 14px; color: var(--text-secondary); margin-left: 5px; margin-bottom: 4px; display: block;}
+
+        input, select { 
+            width: 100%; 
+            padding: 14px 18px; 
+            margin-bottom: 18px; 
+            border: 2px solid var(--input-border); 
+            border-radius: 14px; 
+            box-sizing: border-box; 
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s ease;
+            background: white;
+        }
+
+        input:focus, select:focus { 
+            border-color: var(--input-focus); 
+            box-shadow: 0 0 0 3px rgba(0, 91, 255, 0.15); 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            margin: 10px 0; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: 0.2s ease; 
+        }
+
+        .btn-primary { background: var(--ozon-blue); color: white; }
+        .btn-pay { background: var(--ozon-magenta); color: white; }
+        .btn-secondary { background: #eef3ff; color: var(--ozon-blue); }
+
+        button:active { transform: scale(0.97); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none; }
+        .active-section { display: block; animation: fadeIn 0.5s ease forwards; }
+
+        .item-card {
+            border: 2px solid var(--input-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+
+        .address-block {
+            background: #f5f7fb;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 10px 0 20px 0;
+            border-left: 4px solid var(--ozon-blue);
+        }
+
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .total-price { font-size: 26px; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>KFC 2.0</h2>
+
+    <div id="auth-section" class="active-section">
+        <label>Логин</label>
+        <input type="text" id="username" placeholder="ivan_ozon">
+        <label>Ваше имя (ник)</label>
+        <input type="text" id="nickname" placeholder="Иван">
+        <button class="btn-primary" onclick="login()">Войти</button>
+    </div>
+
+    <div id="menu-section" class="hidden">
+        <p style="font-weight: 600;">👋 <span id="display-nick" style="color: var(--ozon-blue);"></span>, выбирайте:</p>
+        
+        <label>Меню</label>
+        <select id="food-select">
+            <option value="35" data-id="1">🥪 Бутерброд с колбасой — 35₽</option>
+            <option value="35" data-id="2">🧀 Бутерброд с сыром — 35₽</option>
+            <option value="60" data-id="3">🍔 Бургер Комбо — 60₽</option>
+        </select>
+        
+        <button class="btn-primary" onclick="goToCart()">Добавить в корзину</button>
+        <button class="btn-secondary" onclick="logout()">Выйти</button>
+    </div>
+
+    <div id="cart-section" class="hidden">
+        <h3>Оформление заказа</h3>
+        
+        <div class="item-card">
+            <div id="cart-item-desc" style="font-weight: 700; font-size: 17px;"></div>
+            <div style="color: green; font-size: 14px; margin-top: 6px;">✅ В наличии</div>
+        </div>
+        
+        <label>Способ получения</label>
+        <select id="delivery-method" onchange="updateTotal()">
+            <option value="pickup">Самовывоз (Бесплатно)</option>
+            <option value="delivery">Доставка Курьером (+25₽)</option>
+        </select>
+
+        <label>Адрес</label>
+        <div id="address-info" class="address-block"></div>
+        
+        <div class="total-line">
+            <span style="font-weight: 600;">Итого:</span>
+            <div class="total-price" id="total-price"></div>
+        </div>
+        
+        <button class="btn-pay" onclick="pay()">Оплатить заказ</button>
+        <button class="btn-secondary" onclick="backToMenu()">Назад</button>
+    </div>
+</div>
+
+<script>
+    let currentUser = JSON.parse(localStorage.getItem('kfc_user'));
+    let selectedPrice = 0;
+    let selectedName = "";
+    let selectedId = "";
+
+    window.onload = () => {
+        if (currentUser) {
+            document.getElementById('auth-section').classList.remove('active-section');
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('menu-section').classList.remove('hidden');
+            document.getElementById('menu-section').classList.add('active-section');
+            document.getElementById('display-nick').innerText = currentUser.nickname;
+        }
+    };
+
+    function login() {
+        const user = document.getElementById('username').value;
+        const nick = document.getElementById('nickname').value;
+        if (user && nick) {
+            currentUser = { username: user, nickname: nick };
+            localStorage.setItem('kfc_user', JSON.stringify(currentUser));
+            document.getElementById('display-nick').innerText = currentUser.nickname;
+            switchSection('auth-section', 'menu-section');
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('kfc_user');
+        location.reload();
+    }
+
+    function goToCart() {
+        const select = document.getElementById('food-select');
+        const selectedOption = select.options[select.selectedIndex];
+        
+        selectedPrice = parseInt(selectedOption.value);
+        selectedId = selectedOption.getAttribute('data-id'); // Получаем ID
+        selectedName = selectedOption.text.split(' — ')[0];
+        
+        document.getElementById('cart-item-desc').innerText = selectedName;
+        updateTotal();
+        switchSection('menu-section', 'cart-section');
+    }
+
+    function updateTotal() {
+        const method = document.getElementById('delivery-method').value;
+        const addressBox = document.getElementById('address-info');
+        let total = selectedPrice;
+
+        if (method === 'delivery') {
+            total += 25;
+            addressBox.innerHTML = "<b>🚴 Доставка:</b><br>г. Квартирск, ул. Папина, 1 b";
+        } else {
+            addressBox.innerHTML = "<b>🏪 Пункт:</b><br>г. Квартирск, ул. Домовая, 67/2";
+        }
+
+        document.getElementById('total-price').innerText = total + " ₽";
+        return total;
+    }
+
+    function pay() {
+        const finalAmount = updateTotal();
+        const orderId = `id{${selectedId}}`; // Формируем ID для Telegram
+        
+        alert(`1. Переведите ${finalAmount} ₽ в Т-Банк по номеру: 8 961 529 63 89.\n\n2. Отправьте этот код в Telegram @roman_egoroff:\n${orderId}`);
+    }
+
+    function switchSection(hideId, showId) {
+        document.getElementById(hideId).classList.remove('active-section');
+        document.getElementById(hideId).classList.add('hidden');
+        document.getElementById(showId).classList.remove('hidden');
+        document.getElementById(showId).classList.add('active-section');
+    }
+
+    function backToMenu() {
+        switchSection('cart-section', 'menu-section');
+    }
+</script>
+
+</body>
+</html>
